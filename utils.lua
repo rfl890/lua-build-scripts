@@ -29,20 +29,24 @@ local function split(str, pattern)
     return result
 end
 
+local function switch_ext(filename, ext) 
+    local splitted = split(filename, ".")
+    splitted[#splitted] = ext
+    return table.concat(splitted, ".")
+end
+
 local function lto_prefix(file) 
     local splitted = split(file, ".")
     splitted[1] = splitted[1] .. "-lto"
     return table.concat(splitted, ".")
 end
+
 local function objectify(file)
-    local splitted = split(file, ".")
-    splitted[#splitted] = "obj"
-    return table.concat(splitted, ".")
+    return switch_ext(file, "obj")
 end
+
 local function sourceify(file)
-    local splitted = split(file, ".")
-    splitted[#splitted] = "c"
-    return table.concat(splitted, ".")
+    return switch_ext(file, "c")
 end
 
 local function concat(...) 
@@ -113,4 +117,4 @@ local function parse_makefile(file, key)
     return result
 end
 
-return { printf = printf, move = move, run = run, starts = starts, split = split, objectify = objectify, sourceify = sourceify, concat = concat, lto_prefix = lto_prefix, exists = exists, clean_up_objects = clean_up_objects, clean_up_artifacts = clean_up_artifacts, blank_if_not = blank_if_not, parse_makefile = parse_makefile }
+return { printf = printf, move = move, run = run, starts = starts, split = split, objectify = objectify, sourceify = sourceify, concat = concat, lto_prefix = lto_prefix, exists = exists, clean_up_objects = clean_up_objects, clean_up_artifacts = clean_up_artifacts, blank_if_not = blank_if_not, parse_makefile = parse_makefile, switch_ext = switch_ext }
