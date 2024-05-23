@@ -14,14 +14,16 @@ local INSTALL_BIN = INSTALL_TOP .. "/bin"
 local INSTALL_INC = INSTALL_TOP .. "/include"
 local INSTALL_LIB = INSTALL_TOP .. "/lib"
 
+local BUILD_32BIT = false
 local BUILD_AS_DLL = false
 local LTO = true
 local LINUX = false
 
 local CC = "gcc"
 local CFLAGS = {
-    "-O3", 
-    "-DLUA_COMPAT_5_3", 
+    utils.blank_if_not(BUILD_32BIT, "-m32"),
+    "-O3",
+    "-DLUA_COMPAT_5_3",
 
     utils.blank_if_not(BUILD_AS_DLL, "-DLUA_BUILD_AS_DLL"), 
     utils.blank_if_not(LINUX, "-DLUA_USE_LINUX"), 
@@ -93,6 +95,7 @@ end
 local function build_dynamic_library()
     build_object_files(false)
     utils.run(CC, utils.concat(
+        { utils.blank_if_not(BUILD_32BIT, "-m32") },
         { "-s", "-shared", "-o", LUA_DLLNAME }, 
         source_files:map(function(file) return utils.objectify(file) end), 
         LINKFLAGS
@@ -102,6 +105,7 @@ end
 local function build_dynamic_library_lto()
     build_object_files(true)
     utils.run(CC, utils.concat(
+        { utils.blank_if_not(BUILD_32BIT, "-m32") },
         { "-s", "-shared", "-o", LUA_DLLNAME }, 
         source_files:map(function(file) return utils.objectify(utils.lto_prefix(file)) end), 
         LINKFLAGS
@@ -156,7 +160,7 @@ if BUILD_AS_DLL then
         build_dynamic()
     end
     utils.run("gendef", { LUA_DLLNAME })
-    utils.run("dlltool", { "-d", utils.switch_ext(LUA_DLLNAME, "def"), "-m", "i386:x86-64", "-l", LUA_LIBNAME })
+    utils.run("dlltool", { "-d", utils.switch_ext(LUA_DLLNAME, "def"), "-m", BUILD_32BIT and "i386" or "i386:x86-64", "-l", LUA_LIBNAME })
     os.remove("src/" .. utils.switch_ext(LUA_DLLNAME, "def"))
 else
     if LTO then
