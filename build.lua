@@ -32,7 +32,6 @@ local LINKFLAGS = {
     utils.blank_if_not(LINUX, "-ldl"), 
     utils.blank_if_not(LINUX, "-lreadline") 
 }
-
 ------ END OF CONFIGURATION
 
 -- Parse Makefile
@@ -58,11 +57,7 @@ if (LINUX and os.getenv("WINDIR")) then
     os.exit(1)
 end
 
--- VARIABLES
-local source_files = array:new({})
-
 -- Lua 5.1 luac hack
-
 if utils.exists("src/print.c") then 
     source_files:push("print.c")
 end
